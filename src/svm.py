@@ -1,39 +1,12 @@
 """
-svm.py — a soft-margin linear SVM built FROM SCRATCH via PEGASOS (NumPy only),
-plus random Fourier features (RFF) for the non-linear extension.
+Linear SVM implemented from scratch using Pegasos and NumPy.
 
-Objective (labels y_i in {-1, +1}):
+Also includes Random Fourier Features (RFF) for non-linear classification.
 
-    J(w, b) = (lambda/2) ||w||^2 + (1/n) sum_i max(0, 1 - y_i (w . x_i + b))
+Pegasos trains the SVM using mini-batch gradient updates.
+RFF allows the linear SVM to learn non-linear patterns.
 
-Pegasos (Shalev-Shwartz et al., 2011) = stochastic sub-gradient descent on J.
-At step t pick a mini-batch A_t of k examples, let A_t^+ be those with an
-active hinge (y_i (w . x_i + b) < 1), and with learning rate eta_t:
-
-    w <- (1 - eta_t lambda) w + (eta_t / k) sum_{i in A_t^+} y_i x_i
-
-k = 1 is the classic per-example update; k = n is full-batch sub-gradient
-descent. Bias handling: we append a constant feature 1 to x (as suggested in
-the project statement), so b is the last weight. It is therefore lightly
-regularised as well; with standardised inputs and ~balanced classes this has
-no measurable effect.
-
-Learning-rate schedules (`lr_schedule`):
-    "pegasos"   eta_t = 1 / (lambda t)           (the paper's choice)
-    "invsqrt"   eta_t = eta0 / sqrt(t)
-    "constant"  eta_t = eta0
-
-Optional projection onto the ball ||w|| <= 1/sqrt(lambda) (paper, step 3),
-which contains the optimum and tames the huge early Pegasos steps.
-
-Non-linear extension: RANDOM FOURIER FEATURES (Rahimi & Recht, 2007).
-    z(x) = sqrt(2/D) cos(W x + c),  W_ij ~ N(0, 2 gamma),  c_j ~ U(0, 2 pi)
-so that z(x).z(x') ~= exp(-gamma ||x - x'||^2) (RBF kernel). We then run the
-SAME linear Pegasos on z(x). Chosen over kernelised Pegasos because the
-training set has ~40k rows: kernelised Pegasos costs O(n) kernel evaluations
-per step and O(n_SV) per prediction, whereas RFF keeps every step O(D).
-
-scikit-learn's SVC / SGDClassifier are BASELINES only — not used here.
+Scikit-learn is not used in these implementations.
 """
 
 from __future__ import annotations
@@ -71,7 +44,6 @@ class PegasosSVM:
             "lambda_", "epochs", "batch_size", "lr_schedule", "eta0",
             "project", "fit_intercept", "random_state")}
 
-    # ------------------------------------------------------------- labels
     def _to_pm1(self, y) -> np.ndarray:
         """Map two class labels to {-1, +1}; remember the mapping."""
         y = np.asarray(y)
@@ -95,14 +67,12 @@ class PegasosSVM:
             return self.eta0
         raise ValueError(f"unknown lr_schedule {self.lr_schedule!r}")
 
-    # --------------------------------------------------------- objective
     def objective(self, X, y_pm) -> float:
         """J(w,b) on (already augmented) X with +/-1 labels."""
         margins = y_pm * (X @ self._wb)
         hinge = np.maximum(0.0, 1.0 - margins).mean()
         return 0.5 * self.lambda_ * float(self._wb @ self._wb) + float(hinge)
-
-    # --------------------------------------------------------------- fit
+    
     def fit(self, X, y):
         Xa = self._augment(X)
         y_pm = self._to_pm1(y)
@@ -118,13 +88,13 @@ class PegasosSVM:
 
         t = 0
         for _ in range(self.epochs):
-            perm = rng.permutation(n)          # one pass = every sample once
+            perm = rng.permutation(n)          
             for start in range(0, n, k):
                 t += 1
                 idx = perm[start:start + k]
                 Xb, yb = Xa[idx], y_pm[idx]
                 eta = self._eta(t)
-                active = yb * (Xb @ self._wb) < 1.0           # hinge active
+                active = yb * (Xb @ self._wb) < 1.0          
                 grad_hinge = (yb[active, None] * Xb[active]).sum(axis=0) / len(idx)
                 self._wb *= (1.0 - eta * self.lambda_)
                 self._wb += eta * grad_hinge
@@ -142,7 +112,7 @@ class PegasosSVM:
             self.w, self.b = self._wb.copy(), 0.0
         return self
 
-    # ----------------------------------------------------------- predict
+    
     def decision_function(self, X) -> np.ndarray:
         """Signed score  w . x + b  for each row."""
         return np.asarray(X, dtype=float) @ self.w + self.b
@@ -150,7 +120,7 @@ class PegasosSVM:
     def predict(self, X) -> np.ndarray:
         return np.where(self.decision_function(X) >= 0, self.classes_[1], self.classes_[0])
 
-    # ------------------------------------------------------------ margin
+    
     @property
     def w_norm(self) -> float:
         return float(np.linalg.norm(self.w))
