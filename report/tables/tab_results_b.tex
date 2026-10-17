@@ -1,0 +1,15 @@
+\begin{tabular}{@{}lcccccr@{}}
+\toprule
+Model & Prec. & Rec. & F1 & AUC & CV F1 & fit s \\
+\midrule
+Majority baseline & 0.000 & 0.000 & 0.000 & 0.500 & 0.000$\pm$0.000 & 0.00 \\
+Ours: decision tree & 0.918 & 0.925 & 0.921 & 0.917 & 0.926$\pm$0.004 & 4.28 \\
+sk: DecisionTreeClassifier & 0.919 & 0.923 & 0.921 & 0.916 & 0.926$\pm$0.004 & 0.47 \\
+Ours: Pegasos SVM (linear) & 0.894 & 0.906 & 0.900 & 0.965 & 0.907$\pm$0.003 & 2.06 \\
+sk: SGDClassifier hinge & 0.893 & 0.907 & 0.900 & 0.965 & 0.908$\pm$0.003 & 0.37 \\
+sk: LinearSVC & 0.895 & 0.910 & 0.902 & 0.968 & 0.909$\pm$0.003 & 0.73 \\
+Ours: RFF Pegasos SVM & 0.883 & 0.918 & 0.900 & 0.967 & 0.906$\pm$0.003 & 5.44 \\
+sk: RBFSampler + SGD hinge & 0.886 & 0.915 & 0.901 & 0.967 & 0.907$\pm$0.003 & 2.23 \\
+sk: SVC rbf (10k sub.) & 0.898 & 0.901 & 0.899 & 0.967 & --- & 1.93 \\
+\bottomrule
+\end{tabular}

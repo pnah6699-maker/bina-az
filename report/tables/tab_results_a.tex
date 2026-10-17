@@ -1,0 +1,13 @@
+\begin{tabular}{@{}lcccccr@{}}
+\toprule
+Model & RMSE & MAE & $R^2$ & MAPE\% & CV RMSE & fit s \\
+\midrule
+Mean baseline & 0.629 & 0.487 & 0.000 & 55.2 & 0.630$\pm$0.003 & 0.00 \\
+Ours: decision tree & 0.232 & 0.148 & 0.864 & 15.4 & 0.232$\pm$0.004 & 6.60 \\
+sk: DecisionTreeRegressor & 0.232 & 0.148 & 0.864 & 15.4 & 0.233$\pm$0.004 & 0.53 \\
+Ours: Ridge$^{b}$ & 0.242 & 0.168 & 0.852 & 17.1 & 0.240$\pm$0.004 & 0.03 \\
+sk: Ridge & 0.242 & 0.168 & 0.852 & 17.1 & 0.240$\pm$0.004 & 0.08 \\
+Ours: random forest$^{b}$ & 0.185 & 0.115 & 0.914 & 11.7 & --- & 131.76 \\
+sk: RandomForestRegressor & 0.185 & 0.116 & 0.914 & 11.8 & --- & 4.36 \\
+\bottomrule
+\end{tabular}
