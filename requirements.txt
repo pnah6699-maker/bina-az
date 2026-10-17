@@ -1,0 +1,8 @@
+# Exact versions used to produce every number/figure (Python 3.14.7, Windows 11).
+numpy==2.5.3
+pandas==3.0.6
+matplotlib==3.11.2
+scikit-learn==1.9.1   # baselines / bonuses / test sanity checks ONLY — not our models
+scipy==1.18.1         # pulled in by scikit-learn
+pytest==9.1.1         # tests/
+kagglehub==1.0.2      # optional: scripts/download_data.py
